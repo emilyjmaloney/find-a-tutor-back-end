@@ -18,7 +18,7 @@ class User(db.Model):
             # do not serialize the password, its a security breach
         }
     
-    class UserAccount(db.Model):
+class UserAccount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_type = db.Column(db.Boolean(), unique=True, nullable=False)
     first_name = db.Column(db.String(120), unique=False, nullable=False)
@@ -26,7 +26,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=False, nullable=False)
     username = db.Column(db.String(120), unique=False, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)
-    zipcode = db.Column(db.Integer(120), unique=False, nullable=False)
+    zipcode = db.Column(db.Integer, unique=False, nullable=False)
 
 # I dont get
     def __repr__(self):
@@ -46,9 +46,10 @@ class User(db.Model):
         }
 
 class UserProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(120), unique=False, nullable=False)
     last_name = db.Column(db.String(120), unique=False, nullable=False)
-    zipcode = db.Column(db.Integer(120), unique=False, nullable=False)
+    zipcode = db.Column(db.Integer, unique=False, nullable=False)
     online = db.Column(db.Boolean(), unique=False, nullable=False)
     profile_image = db.Column(db.String(500), unique=False, nullable=False)
     about_me = db.Column(db.String(1000), unique=False, nullable=False)
