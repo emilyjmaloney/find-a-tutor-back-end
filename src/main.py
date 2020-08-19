@@ -9,7 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
-from flask_jwt_simple import JWTManager
+from flask_jwt_simple import JWTManager, create_jwt, get_jwt_identity, jwt_required #added to match the newly added endponts for new user and login
 #from models import Person
 
 app = Flask(__name__)
@@ -17,7 +17,7 @@ app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # jwt_simple config
-app.config['JWT_SECRET_KEY'] = 'emsmSecret'  # Change this!
+app.config['JWT_SECRET_KEY'] = os.environ.get{JWT_SECRET}'  # Change this!
 jwt = JWTManager(app)
 
 MIGRATE = Migrate(app, db)
@@ -44,13 +44,13 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST'])     #not from website, Ernesto created, doesn't use jwt to create users
 def handle_signup():
     input_data = request.json
-    if "email" in input_data and "password" in input_data:
+    if 'email' in input_data and 'password' in input_data:
         new_user = User(
-            input_data["email"],
-            input_data["password"]
+            input_data['email'],
+            input_data['password']
         )
         db.session.add(new_user)
         try:
@@ -59,7 +59,7 @@ def handle_signup():
         except Exception as error:
             db.session.rollback()
             return jsonify({
-                "msg": error.args
+                "msg": error
             }), 500
     else:
         return jsonify({
@@ -71,21 +71,56 @@ def login():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
-    params = request.get_json()
-    username = params.get('username', None)
+    params = request.json
+    email = params.get('email', None)
     password = params.get('password', None)
 
-    if not username:
+    if not email:
         return jsonify({"msg": "Missing username parameter"}), 400
     if not password:
         return jsonify({"msg": "Missing password parameter"}), 400
 
-    if username != 'test' or password != 'test':
-        return jsonify({"msg": "Bad username or password"}), 401
+    specific_user = User.query.filter_by(
+        email=email
+    ).one_or_none()
+    if isinstance(specific_user, User):
+        if specific_user.password == password:
+            # oh, this person is who it claims to be!
+            # Identity can be any data that is json serializable
+            response = {'jwt': create_jwt(identity=specific_user.id)}
+            return jsonify(response), 200
 
-    # Identity can be any data that is json serializable
-    ret = {'jwt': create_jwt(identity=username)}
-    return jsonify(ret), 200
+        else:
+            return jsonify({
+            "msg": "bad credentials"
+        }), 400
+    else:
+        return jsonify({
+            "msg": "bad credentials"
+        }), 400
+
+    # if username != 'test' or password != 'test':
+    #     return jsonify({"msg": "Bad username or password"}), 401
+@app.route('/protected', methods=['GET'])
+@jwt_required
+def protected():
+    # Access the identity of the current user with get_jwt_identity
+    specific_user_id = get_jwt_identity()
+    specific_user = User.query.filter_by(
+        id=specific_user_id
+    ).one_or_none()
+    # specific_user = User.query.get(specific_user_id)
+    if specific_user is None:
+        return jsonify({
+            "msg": "user not found"
+        }), 404
+    else:
+        return jsonify({
+            "msg": "Yay! You sent your token correctly so I know who you are!",
+            "user_data": specific_user.serialize()
+        }), 200
+    
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
