@@ -9,12 +9,17 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
+from flask_jwt_simple import JWTManager
 #from models import Person
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# jwt_simple config
+app.config['JWT_SECRET_KEY'] = 'emsmSecret'  # Change this!
+jwt = JWTManager(app)
+
 MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
@@ -38,6 +43,49 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/signup', methods=['POST'])
+def handle_signup():
+    input_data = request.json
+    if "email" in input_data and "password" in input_data:
+        new_user = User(
+            input_data["email"],
+            input_data["password"]
+        )
+        db.session.add(new_user)
+        try:
+            db.session.commit()
+            return jsonify(new_user.serialize()), 201
+        except Exception as error:
+            db.session.rollback()
+            return jsonify({
+                "msg": error.args
+            }), 500
+    else:
+        return jsonify({
+            "msg": "check your keys..."
+        }), 400
+
+@app.route('/login', methods=['POST'])
+def login():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    params = request.get_json()
+    username = params.get('username', None)
+    password = params.get('password', None)
+
+    if not username:
+        return jsonify({"msg": "Missing username parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+
+    if username != 'test' or password != 'test':
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    # Identity can be any data that is json serializable
+    ret = {'jwt': create_jwt(identity=username)}
+    return jsonify(ret), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
