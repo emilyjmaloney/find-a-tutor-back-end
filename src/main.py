@@ -17,7 +17,7 @@ app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # jwt_simple config
-app.config['JWT_SECRET_KEY'] = os.environ.get{JWT_SECRET}'  # Change this!
+app.config['JWT_SECRET_KEY'] = os.environ.get("JWT_SECRET")  # Change this!
 jwt = JWTManager(app)
 
 MIGRATE = Migrate(app, db)
@@ -119,7 +119,18 @@ def protected():
             "msg": "Yay! You sent your token correctly so I know who you are!",
             "user_data": specific_user.serialize()
         }), 200
-    
+@app.route('/getall', methods=['GET'])
+def handle_getall():
+    users = User.query.all()
+    serialized_users = []
+    for user in users:
+        serialized_users.append(user.serialize())
+    return jsonify(serialized_users), 200
+
+# All Users
+# UN: emilyjean.maloney@gmail.com PW: emsmSecret
+# UN: emily@gmail.com PW: password123
+# UN: emilym@gmail.com PW: password123
 
 
 # this only runs if `$ python src/main.py` is executed
