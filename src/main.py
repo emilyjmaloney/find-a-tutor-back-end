@@ -47,11 +47,23 @@ def handle_hello():
 @app.route('/signup', methods=['POST'])     #not from website, Ernesto created, doesn't use jwt to create users
 def handle_signup():
     input_data = request.json
-    if 'email' in input_data and 'password' in input_data:
+    if (
+        "student" in input_data and
+        "first_name" in input_data and
+        "last_name" in input_data and
+        "username" in input_data and
+        'email_address' in input_data and 
+        'password' in input_data
+    ):
+        
         new_user = User(
-            input_data['email'],
-            input_data['password']
-        )
+            input_data["student"],
+            input_data["first_name"],
+            input_data["last_name"],
+            input_data["username"],
+            input_data["email_address"],
+            input_data["password"],
+            )
         db.session.add(new_user)
         try:
             db.session.commit()
@@ -59,7 +71,7 @@ def handle_signup():
         except Exception as error:
             db.session.rollback()
             return jsonify({
-                "msg": error
+                "msg": error.args
             }), 500
     else:
         return jsonify({
@@ -81,7 +93,7 @@ def login():
         return jsonify({"msg": "Missing password parameter"}), 400
 
     specific_user = User.query.filter_by(
-        email=email
+        email_address=email
     ).one_or_none()
     if isinstance(specific_user, User):
         if specific_user.password == password:

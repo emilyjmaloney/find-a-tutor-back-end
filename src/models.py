@@ -12,8 +12,6 @@ class User(db.Model):
     email_address = db.Column(db.String(50), nullable=False, unique=True)
     username = db.Column(db.String(30), nullable=False, unique=True)
     password = db.Column(db.String(30), nullable=False)
-    zipcode = db.Column(db.Integer, nullable=False)
-    online = db.Column(db.String(20), nullable=False)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     
     # userprofile=db.relationship("userprofile", backref="author")
@@ -22,15 +20,13 @@ class User(db.Model):
     # sent_messages=db.relationship("Message", backref="sender")
     # received_messages=db.relationship("Message", backref="recipient")
 
-    def __init__(self, student, first_name, last_name, email_address, username, password, zipcode, online, is_active):
+    def __init__(self, student, first_name, last_name, username, email_address, password):
         self.student = student
         self.first_name = first_name
-        self.last_name - last_name
-        self.email_address = email_address
+        self.last_name = last_name
         self.username = username
+        self.email_address = email_address
         self.password = password
-        self.zipcode = zipcode
-        self.online = online
         self.is_active = True
 
     def __repr__(self):
@@ -43,10 +39,9 @@ class User(db.Model):
             "student": self.student,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "email_address": self.email_address,
             "username": self.username,
-            "zipcode": self.zipcode,
-            "online": self.online
+            "email_address": self.email_address,
+            "is_active": self.is_active,
         }
 
 
@@ -58,19 +53,22 @@ class UserProfile(db.Model):
     subjects = db.Column(db.String(50), nullable=False)
     weekday = db.Column(db.String(10), nullable=False)
     daily_timeslot = db.Column(db.String(20), nullable=False)
-    
-    def __init__(self, id, user_id, profile_image, about_me, online, subjects, weekday, daily_timeslot):
-        self.id = id
+    online = db.Column(db.String(20), nullable=False)
+    zipcode = db.Column(db.Integer, nullable=True)
+
+        
+    def __init__(self, user_id, profile_image, about_me, online, subjects, weekday, daily_timeslot, zipcode):
         self.user_id = user_id
         self.profile_image = profile_image
         self.about_me = about_me
         self.subjects = subjects
         self.weekday = weekday
         self.daily_timeslot = daily_timeslot
-        
-    
+        self.online = online
+        self.zipcode = zipcode
+            
     def __repr__(self):
-        return
+        return f"<UserProfile {self.id}>"
     
     def serialize(self):
         return {
@@ -80,7 +78,9 @@ class UserProfile(db.Model):
             "about_me": self.about_me,
             "subjects": self.subjects,
             "weekday": self.weekday,
-            "daily_timeslot": self.daily_timeslot
+            "daily_timeslot": self.daily_timeslot,
+            "online": self.online,
+            "zipcode": self.zipcode,
         }
 
 class Student(db.Model):
@@ -90,14 +90,13 @@ class Student(db.Model):
     grade = db.Column(db.String(50), nullable=False)
     
     def __init__(self, id, user_id, grade):
-        self.id = id
         self.user_id = user_id
         self.experience = experience
     
     def __repr__(self):
-        return
+        return f"<Student {self.id}>"
     
-    def serialize(self, id, user_id, grade):
+    def serialize(self):
         return{
             "id": self.id,
             "user_id":self.user_id,
@@ -111,15 +110,14 @@ class Tutor(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     experience = db.Column(db.String(250), nullable=False)
     
-    def __init__(self, id, user_id, experience):
-        self.id = id
+    def __init__(self, user_id, experience):
         self.user_id = user_id
         self.experience = experience
     
-    def __repr__(self, id, user_id, grade):
-        return
+    def __repr__(self):
+        return f"<Tutor {self.id}>"
     
-    def serialize(self, id, user_id, experience):
+    def serialize(self):
         return{
             "id": self.id,
             "user_id": self.user_id,
@@ -135,18 +133,18 @@ class Message(db.Model):
     text = db.Column(db.String(250))
     created_at = db.Column(db.DateTime())
     
-    def __init__(self, id, sender_id, recipient_id, text, created_at):
-        self.id = id
+    def __init__(self, sender_id, recipient_id, text, created_at):
         self.sender_id = sender_id
         self.recipient_id = recipient_id
         self.text = text
         self.created_at = datetime.now()
     
     def __repr__(self):
-        return
+        return f"<Message {self.id}>"
     
-    def serialize(self, sender_id, recipient_id, text, created_at):
+    def serialize(self):
         return{
+            "id": self.id,
             "sender_id": self.sender_id,
             "recipient_id": self.recipient_id,
             "text": self.text,
