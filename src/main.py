@@ -87,7 +87,7 @@ def login():
         if specific_user.password == password:
             # oh, this person is who it claims to be!
             # Identity can be any data that is json serializable
-            response = {'jwt': create_jwt(identity=specific_user.id)}
+            response = {'jwt': create_jwt(identity=specific_user.id), "user": specific_user.serialize()}
             return jsonify(response), 200
 
         else:
