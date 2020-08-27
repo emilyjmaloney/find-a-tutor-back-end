@@ -17,7 +17,7 @@ app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # jwt_simple config
-app.config['JWT_SECRET_KEY'] = os.environ.get("JWT_SECRET")  # Change this!
+app.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this!
 jwt = JWTManager(app)
 
 MIGRATE = Migrate(app, db)
@@ -87,7 +87,7 @@ def login():
         if specific_user.password == password:
             # oh, this person is who it claims to be!
             # Identity can be any data that is json serializable
-            response = {'jwt': create_jwt(identity=specific_user.id)}
+            response = {'jwt': create_jwt(identity=specific_user.id), 'id': specific_user.id}
             return jsonify(response), 200
 
         else:
