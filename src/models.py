@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 # server is running automatically. $ "pipenv run start" to restart the server
 #use $ "pipenv run migrate" & "pipenv run upgrade" everytime 
 
@@ -13,6 +14,8 @@ class User(db.Model):
     username = db.Column(db.String(30), nullable=False, unique=True)
     password = db.Column(db.String(30), nullable=False)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
+    sent_messages = db.relationship("Message", backref="sender", foreign_keys="Message.sender_id")
+    received_messages = db.relationship("Message", backref="recipient", foreign_keys="Message.recipient_id")
     
     # userprofile=db.relationship("userprofile", backref="author")
     # student=db.relationship("student", backref="author")
