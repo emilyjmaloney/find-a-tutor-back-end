@@ -14,20 +14,25 @@ class User(db.Model):
     username = db.Column(db.String(30), nullable=False, unique=True)
     password = db.Column(db.String(30), nullable=False)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
-    # userprofile = db.relationship(uselist=False)
-    # student = db.relationship(uselist=False)
-    # tutor = db.relationship(uselist=False)
-# missing code from Sarah from class Fri night
-
-# First try at relationships: WRONG
     sent_messages = db.relationship("Message", backref="sender", foreign_keys="Message.sender_id")
     received_messages = db.relationship("Message", backref="recipient", foreign_keys="Message.recipient_id")
-    
-    # userprofile=db.relationship("userprofile", backref="author")
-    # student=db.relationship("student", backref="author")
-    # tutor=db.relationship("tutor", backref="author")
-    # sent_messages=db.relationship("Message", backref="sender")
-    # received_messages=db.relationship("Message", backref="recipient")
+    userprofile = db.relationship("UserProfile", uselist=False, backref="user")
+    student = db.relationship("Student", uselist=False, backref="user")
+    tutor = db.relationship("Tutor", uselist=False, backref="user")
+
+# _________________________________________________________________________________________________________________________________________
+# Example of 1 to 1 from docs.sqlalchemy: https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html#one-to-one
+# class Parent(Base):
+#     __tablename__ = 'parent'
+#     id = Column(Integer, primary_key=True)
+#     child = relationship("Child", uselist=False, back_populates="parent")
+
+# class Child(Base):
+#     __tablename__ = 'child'
+#     id = Column(Integer, primary_key=True)
+#     parent_id = Column(Integer, ForeignKey('parent.id'))
+#     parent = relationship("Parent", back_populates="child")  
+# _________________________________________________________________________________________________________________________________________
 
 # Example of 1 to Many from flask-sqlalc hemy: https://flask-sqlalchemy.palletsprojects.com/en/2.x/models/#one-to-many-relationships
 # class Person(db.Model):     <--- THIS IS "USER" FOR ME
@@ -40,6 +45,7 @@ class User(db.Model):
 #     email = db.Column(db.String(120), nullable=False)
 #     person_id = db.Column(db.Integer, db.ForeignKey('person.id'),     <--- "person_id" IS "user_id" FOR ME
 #         nullable=False)
+# _________________________________________________________________________________________________________________________________________
 
     def __init__(self, student, first_name, last_name, username, email_address, password):
         self.student = student
@@ -63,6 +69,7 @@ class User(db.Model):
             "username": self.username,
             "email_address": self.email_address,
             "is_active": self.is_active,
+            "userprofile": self.userprofile,
         }
 
 
@@ -169,103 +176,3 @@ class Message(db.Model):
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     email = db.Column(db.String(120), unique=True, nullable=False)
-#     password = db.Column(db.String(80), unique=False, nullable=False)
-#     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-
-#     def __init__(self, email, password):
-#         self.email = email
-#         self.password = password
-#         self.is_active = True
-
-#     def __repr__(self):
-#         return '<User %r>' % self.username
-
-#     def serialize(self):
-#         return {
-#             "id": self.id,
-#             "email": self.email,
-#             # "is_active": self.is_active
-#             # do not serialize the password, its a security breach
-#         }
-    
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     user_type = db.Column(db.Boolean(), unique=True, nullable=False)
-#     first_name = db.Column(db.String(120), unique=False, nullable=False)
-#     last_name = db.Column(db.String(120), unique=False, nullable=False)
-#     email = db.Column(db.String(120), unique=False, nullable=False)
-#     username = db.Column(db.String(120), unique=False, nullable=False)
-#     password = db.Column(db.String(120), unique=False, nullable=False)
-#     zipcode = db.Column(db.Integer, unique=False, nullable=False)
-#     online = db.Column(db.boolean, unique=False, nullable=False)
-
-# # I dont get
-#     def __repr__(self):
-#         return '<UserAccount %r>' % self.username
-
-# # I kinda get
-#     def serialize(self):
-#         return {
-#             "id": self.id,
-#             "user_type": self.user_type,
-#             "first_name": self.first_name,
-#             "last_name": self.last_name,
-#             "email": self.email,
-#             "username": self.username,
-#             "password": self.password,
-#             "zipcode": self.zipcode
-#         }
-
-# class UserProfile(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     first_name = db.Column(db.String(120), unique=False, nullable=False)
-#     last_name = db.Column(db.String(120), unique=False, nullable=False)
-#     zipcode = db.Column(db.Integer, unique=False, nullable=False)
-#     online = db.Column(db.Boolean(), unique=False, nullable=False)
-#     profile_image = db.Column(db.String(500), unique=False, nullable=False)
-#     about_me = db.Column(db.String(1000), unique=False, nullable=False)
-#     subjects_needed = db.Column(db.String(120), unique=False, nullable=False)
-#     subjects_tutored = db.Column(db.String(120), unique=False, nullable=False)
-#     current_grade = db.Column(db.String(120), unique=False, nullable=False)
-#     wkly_hrs_needed = db.Column(db.String(120), unique=False, nullable=False)
-#     grades_tutored = db.Column(db.String(120), unique=False, nullable=False)
-#     subjects_tutored = db.Column(db.String(120), unique=False, nullable=False)
-
-# # I dont get
-#     def __repr__(self):
-#         return '<UserAccount %r>' % self.username
-
-# # I kinda get
-#     def serialize(self):
-#         return {
-#             "first_name": self.first_name,
-#             "last_name": self.last_name,
-#             "zipcode": self.zipcode,
-#             "online": self.online,
-#             "email": self.email,
-#             "profile_image": self.profile_image,
-#             "subjects_needed": self.subjects_needed,
-#             "subjects_tutored": self.subjects_tutored,
-#             "current_grade": self.current_grade,
-#             "wkly_hrs_needed": self.wkly_hrs_needed,
-#             "grades_tutored": self.grades_tutored,
-#             "subjects_tutored": self.subjects_tutored
-#         }
