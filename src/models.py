@@ -17,8 +17,8 @@ class User(db.Model):
     sent_messages = db.relationship("Message", backref="sender", foreign_keys="Message.sender_id")
     received_messages = db.relationship("Message", backref="recipient", foreign_keys="Message.recipient_id")
     userprofile = db.relationship("UserProfile", uselist=False, backref="user")
-    student = db.relationship("Student", uselist=False, backref="user")
-    tutor = db.relationship("Tutor", uselist=False, backref="user")
+    # student = db.relationship("Student", uselist=False, backref="user")
+    # tutor = db.relationship("Tutor", uselist=False, backref="user")
 
 # _________________________________________________________________________________________________________________________________________
 # Example of 1 to 1 from docs.sqlalchemy: https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html#one-to-one
@@ -69,7 +69,6 @@ class User(db.Model):
             "username": self.username,
             "email_address": self.email_address,
             "is_active": self.is_active,
-            "userprofile": self.userprofile,
         }
 
 

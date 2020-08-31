@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Message
+from models import db, User, Message, UserProfile
 from flask_jwt_simple import JWTManager, create_jwt, get_jwt_identity, jwt_required #added to match the newly added endponts for new user and login
 #from models import Person
 
@@ -63,15 +63,32 @@ def handle_signup():
             input_data["email_address"],
             input_data["password"],
             )
+        #
         db.session.add(new_user)
         try:
             db.session.commit()
+            new_userprofile = UserProfile(
+              user_id = new_user.id,
+              about_me = "I am happy",
+              profile_image = None,
+              subjects = None,
+              weekday = None,
+              daily_timeslot = None,
+              online = None,
+              zipcode = None
+
+            )
+            db.session.add(new_userprofile)
+            db.session.commit()
+            print("Profile:", new_userprofile.about_me)
             return jsonify(new_user.serialize()), 201
         except Exception as error:
             db.session.rollback()
             return jsonify({
                 "msg": error.args
             }), 500
+        # user1 = User.query.get(new_user.id)
+        
     else:
         return jsonify({
             "msg": "check your keys..."
@@ -160,6 +177,19 @@ def messages():
     db.session.add(user1)
     db.session.commit()
     return "ok", 200
+
+@app.route('/user-profile', methods=['GET'])
+def handle_profile():
+    """
+    Create person and retrieve all persons
+    """
+
+    # GET request
+    all_people = UserProfile.query.all()
+    all_people = list(map(lambda x: x.serialize(), all_people))
+    return jsonify(all_people), 200
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
