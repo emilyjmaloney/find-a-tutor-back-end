@@ -69,12 +69,12 @@ class User(db.Model):
 class UserProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    profile_image = db.Column(db.String(50), nullable=False)
-    about_me = db.Column(db.String(50), nullable=False)
-    subjects = db.Column(db.String(50), nullable=False)
-    weekday = db.Column(db.String(10), nullable=False)
-    daily_timeslot = db.Column(db.String(20), nullable=False)
-    online = db.Column(db.String(20), nullable=False)
+    profile_image = db.Column(db.String(50), nullable=True)
+    about_me = db.Column(db.String(200), nullable=True)
+    subjects = db.Column(db.String(50), nullable=True)
+    weekday = db.Column(db.String(10), nullable=True)
+    daily_timeslot = db.Column(db.String(20), nullable=True)
+    online = db.Column(db.String(20), nullable=True)
     zipcode = db.Column(db.Integer, nullable=True)
         
     def __init__(self, user_id, profile_image, about_me, online, subjects, weekday, daily_timeslot, zipcode):
@@ -126,7 +126,7 @@ class Student(db.Model):
 class Tutor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    experience = db.Column(db.String(250), nullable=False)
+    experience = db.Column(db.String(200), nullable=False)
 
     def __init__(self, user_id, experience):
         self.user_id = user_id
