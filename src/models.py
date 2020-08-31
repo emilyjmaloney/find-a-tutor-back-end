@@ -17,8 +17,8 @@ class User(db.Model):
     sent_messages = db.relationship("Message", backref="sender", foreign_keys="Message.sender_id")
     received_messages = db.relationship("Message", backref="recipient", foreign_keys="Message.recipient_id")
     userprofile = db.relationship("UserProfile", uselist=False, backref="user")
-    # student = db.relationship("Student", uselist=False, backref="user")
-    # tutor = db.relationship("Tutor", uselist=False, backref="user")
+    student_profile = db.relationship("Student", uselist=False, backref="user")
+    tutor_profile = db.relationship("Tutor", uselist=False, backref="user")
 
 # _________________________________________________________________________________________________________________________________________
 # Example of 1 to 1 from docs.sqlalchemy: https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html#one-to-one
@@ -69,6 +69,9 @@ class User(db.Model):
             "username": self.username,
             "email_address": self.email_address,
             "is_active": self.is_active,
+            "userprofile": self.userprofile.serialize(),
+            "student_profile": self.student_profile.serialize() if self.student else None,
+            "tutor_profile": self.tutor_profile.serialize() if not self.student else None,
         }
 
 
@@ -112,11 +115,11 @@ class UserProfile(db.Model):
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    grade = db.Column(db.String(50), nullable=False)
+    grade = db.Column(db.String(50), nullable=True)
 
-    def __init__(self, id, user_id, grade):
+    def __init__(self, user_id, grade):
         self.user_id = user_id
-        self.experience = experience
+        self.grade = grade
     
     def __repr__(self):
         return f"<Student {self.id}>"
@@ -132,7 +135,7 @@ class Student(db.Model):
 class Tutor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    experience = db.Column(db.String(200), nullable=False)
+    experience = db.Column(db.String(200), nullable=True)
 
     def __init__(self, user_id, experience):
         self.user_id = user_id

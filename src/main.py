@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Message, UserProfile
+from models import db, User, Message, UserProfile, Student, Tutor
 from flask_jwt_simple import JWTManager, create_jwt, get_jwt_identity, jwt_required #added to match the newly added endponts for new user and login
 #from models import Person
 
@@ -80,7 +80,18 @@ def handle_signup():
             )
             db.session.add(new_userprofile)
             db.session.commit()
-            print("Profile:", new_userprofile.about_me)
+            if new_user.student == True:
+                new_userrole = Student(
+                    user_id = new_user.id,
+                    grade = None
+                )
+            else:
+                new_userrole = Tutor(
+                    user_id = new_user.id,
+                    experience = None
+                )
+            db.session.add(new_userrole)
+            db.session.commit()
             return jsonify(new_user.serialize()), 201
         except Exception as error:
             db.session.rollback()
