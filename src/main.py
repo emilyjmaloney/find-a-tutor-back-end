@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Message
 from flask_jwt_simple import JWTManager, create_jwt, get_jwt_identity, jwt_required #added to match the newly added endponts for new user and login
 #from models import Person
 
@@ -139,6 +139,27 @@ def handle_getall():
         serialized_users.append(user.serialize())
     return jsonify(serialized_users), 200
 
+@app.route('/messages', methods=['POST'])
+@jwt_required
+def messages():
+
+    # First we get the payload json
+    body = request.get_json()
+
+    if body is None:
+        raise APIException("You need to specify the request body as a json object", status_code=400)
+    if 'text' not in body:
+        raise APIException('You need to specify the text', status_code=400)
+    if 'created_at' not in body:
+        raise APIException('You need to specify the created at', status_code=400)
+    if 'recipient_id' not in body:
+        raise APIException('You need to specify the recipient id', status_code=400)
+
+    # at this point, all data has been validated, we can proceed to inster into the bd
+    user1 = Message(text=body['text'], created_at=body['created_at'], recipient_id=body['recipient_id'], sender_id=get_jwt_identity())
+    db.session.add(user1)
+    db.session.commit()
+    return "ok", 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
