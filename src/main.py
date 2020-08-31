@@ -55,7 +55,6 @@ def handle_signup():
         'email_address' in input_data and 
         'password' in input_data
     ):
-        
         new_user = User(
             input_data["student"],
             input_data["first_name"],
@@ -139,11 +138,6 @@ def handle_getall():
     for user in users:
         serialized_users.append(user.serialize())
     return jsonify(serialized_users), 200
-
-# All Users
-# UN: emilyjean.maloney@gmail.com PW: emsmSecret
-# UN: emily@gmail.com PW: password123
-# UN: emilym@gmail.com PW: password123
 
 
 # this only runs if `$ python src/main.py` is executed
