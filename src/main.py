@@ -201,6 +201,29 @@ def handle_profile():
     return jsonify(all_people), 200
 
 
+@app.route('/update/<int:id>', methods=["PATCH"])
+def update_student(id):
+    body = request.get_json()
+    student = Student.query.get(id)
+    print(student)
+    if body is None:
+        raise APIException('Student not found', status_code=404)    
+    if "grade" in body:
+        student.grade = body["grade"]
+    db.session.commit()
+    return jsonify(student.serialize()), 200
+
+@app.route('/update/<int:id>', methods=["PATCH"])
+def update_tutor(id):
+    body = request.get_json()
+    tutor = Tutor.query.get(id)
+    if body is None:
+        raise APIException('Tutor not found', status_code=404)    
+    if "experience" in body:
+        tutor.experience = body["experience"]
+    db.session.commit()
+    return jsonify(tutor.serialize()), 200
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
