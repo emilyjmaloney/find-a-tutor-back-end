@@ -69,6 +69,7 @@ class User(db.Model):
             "username": self.username,
             "email_address": self.email_address,
             "is_active": self.is_active,
+            "userprofile": self.user_profile.serialize
         }
 
 
