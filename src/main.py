@@ -201,7 +201,7 @@ def handle_profile():
     all_people = list(map(lambda x: x.serialize(), all_people))
     return jsonify(all_people), 200
 
-@app.route('/update/<int:id>', methods=["PATCH"])
+@app.route('/update-student/<int:id>', methods=["PATCH"])
 def update_student(id):
     body = request.get_json()
     student = Student.query.get(id)
@@ -213,7 +213,7 @@ def update_student(id):
     db.session.commit()
     return jsonify(student.serialize()), 200
 
-@app.route('/update/<int:id>', methods=["PATCH"])
+@app.route('/update-tutor/<int:id>', methods=["PATCH"])
 def update_tutor(id):
     body = request.get_json()
     tutor = Tutor.query.get(id)
@@ -224,10 +224,10 @@ def update_tutor(id):
     db.session.commit()
     return jsonify(tutor.serialize()), 200
 
-@app.route('/update/<int:id>', methods=["PATCH"])
+@app.route('/update-userprofile/<int:id>', methods=["PATCH"])
 def update_user_profile(id):
     body = request.get_json()
-    user_profile = User_profile.query.get(id)
+    user_profile = UserProfile.query.get(id)
     if body is None:
         raise APIException('User_profile not found', status_code=404)    
     if "profile_image" in body:
@@ -245,7 +245,7 @@ def update_user_profile(id):
     if "zipcode" in body:
         user_profile.zipcode = body["zipcode"]
     db.session.commit()
-    return jsonify(tutor.serialize()), 200
+    return jsonify(user_profile.serialize()), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
