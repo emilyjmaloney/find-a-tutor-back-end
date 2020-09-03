@@ -159,6 +159,7 @@ def protected():
             "msg": "Yay! You sent your token correctly so I know who you are!",
             "user_data": specific_user.serialize()
         }), 200
+
 @app.route('/getall', methods=['GET'])
 def handle_getall():
     users = User.query.all()
@@ -224,6 +225,28 @@ def update_tutor(id):
     db.session.commit()
     return jsonify(tutor.serialize()), 200
 
+@app.route('/update/<int:id>', methods=["PATCH"])
+def update_user_profile(id):
+    body = request.get_json()
+    user_profile = User_profile.query.get(id)
+    if body is None:
+        raise APIException('User_profile not found', status_code=404)    
+    if "profile_image" in body:
+        user_profile.profile_image = body["profile_image"]
+    if "about_me" in body:
+        user_profile.about_me = body["about_me"]
+    if "subjects" in body:
+        user_profile.subjects = body["subjects"]
+    if "weekday" in body:
+        user_profile.weekday = body["weekday"]
+    if "daily_timeslot" in body:
+        user_profile.daily_timeslot = body["daily_timeslot"]
+    if "online" in body:
+        user_profile.online = body["online"]
+    if "zipcode" in body:
+        user_profile.zipcode = body["zipcode"]
+    db.session.commit()
+    return jsonify(tutor.serialize()), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
