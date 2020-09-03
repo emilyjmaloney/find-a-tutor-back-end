@@ -201,33 +201,6 @@ def handle_profile():
     all_people = list(map(lambda x: x.serialize(), all_people))
     return jsonify(all_people), 200
 
-# Update user profile
-
-@app.route('/update/<int:id>', methods=["PATCH"])
-def update_userprofile(id):
-    body = request.get_json()
-    userprofile = UserProfile.query.get(id)
-    if body is None:
-        raise APIException('Userprofile not found', status_code=404)    
-    if "about_me" in body:
-        userprofile.about_me = body["about me"]
-    if "profile_image" in body:
-        userprofile.profile_image = body["profile image"]
-    if "subjects" in body:
-        userprofile.subjects = body["subjects"]
-    if "weekday" in body:
-        userprofile.weekday = body["weekday"]
-    if "daily_timeslot" in body:
-        userprofile.daily_timeslot = body["daily_timeslot"]
-    if "online" in body:
-        userprofile.online = body["online"]
-    if "zipcode" in body:
-        userprofile.zipcode = body["zipcode"]
-    db.session.commit()
-    return jsonify(userprofile.serialize()), 200
-
-#please review
-
 @app.route('/update/<int:id>', methods=["PATCH"])
 def update_student(id):
     body = request.get_json()
