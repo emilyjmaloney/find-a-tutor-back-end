@@ -72,6 +72,8 @@ class User(db.Model):
             "userprofile": self.userprofile.serialize(),
             "student_profile": self.student_profile.serialize() if self.student else None,
             "tutor_profile": self.tutor_profile.serialize() if not self.student else None,
+            "sent_messages": list(map(lambda x: x.serialize(), self.sent_messages)),
+            "received_messages": list(map(lambda x: x.serialize(), self.received_messages))
         }
 
 
