@@ -246,7 +246,72 @@ def update_user_profile(id):
     if "zipcode" in body:
         user_profile.zipcode = body["zipcode"]
     db.session.commit()
-    return jsonify(tutor.serialize()), 200
+    return jsonify(user_profile.serialize()), 200
+
+@app.route('/update/<int:id>', methods=["PATCH"])
+def update_user(id):
+    body = request.get_json()
+    user_profile = User_profile.query.get(id)
+    if body is None:
+        raise APIException('User_profile not found', status_code=404)    
+    if "student" in body:
+        user.student = body["student"]
+    if "first_name" in body:
+        user.first_name = body["first_name"]
+    if "last_name" in body:
+        user.last_name = body["last_name"]
+    if "email_address" in body:
+        user.email_address = body["email_address"]
+    if "username" in body:
+        user.username = body["username"]
+    db.session.commit()
+    return jsonify(user.serialize()), 200
+
+@app.route('/search', methods=["GET"])
+def search_user ():
+    search_dictionary = request.args.to_dict()
+    print(search_dictionary)
+    if "student" in search_dictionary:
+        online_user_profiles = UserProfile.query.filter_by(online="option3").all()
+        bi_user_profiles = UserProfile.query.filter_by(online="option1").all()
+        in_person_user_profiles = UserProfile.query.filter_by(online="option2").all()
+        profiles_by_online = []
+        if search_dictionary["radio"] == "option1":
+            profiles_by_online = [ *online_user_profiles, *bi_user_profiles, *in_person_user_profiles ]
+        elif search_dictionary["radio"] == "option2":
+            profiles_by_online = [ *bi_user_profiles, *in_person_user_profiles ]
+        else:
+            profiles_by_online = [ *online_user_profiles, *bi_user_profiles ]
+        
+        if search_dictionary["student"] == True:
+            #search for tutors in the tutor table
+            tutors = list(filter(lambda profile: not profile.is_student, profiles_by_online))
+            if "zipcode" in search_dictionary and search_dictionary["zipcode"] !="":
+                filtered_tutors = list(filter(lambda tutor: search_dictionary["zipcode"] in tutor.zipcode, tutors))
+            else:
+                filtered_tutors=[*tutors]
+            serialize_tutors = []
+            for tutor in list(filter(lambda tutor: search_dictionary["subject"] in tutor.subjects, filtered_tutors)):
+                serialize_tutors.append(tutor.serialize())
+            return jsonify(serialize_tutors), 200
+        else:
+            #search for students in the student table
+            students = list(filter(lambda profile: profile.is_student, profiles_by_online))
+            
+            if "zipcode" in search_dictionary and search_dictionary["zipcode"] !="":
+                filtered_students = list(filter(lambda student: search_dictionary["zipcode"] in student.zipcode, students))
+            else:
+                filtered_students =[*students]
+            if "grade" in search_dictionary and search_dictionary["grade"] !="":
+                results = list(filter(lambda student:
+                    student.get_grade()==search_dictionary["grade"], filtered_students))
+            else:
+                results=[*filtered_students]
+            serialize_students = []
+            for student in list(filter(lambda student: search_dictionary["subject"] in student.subjects, results)):
+                serialize_students.append(student.serialize())
+            return jsonify(serialize_students), 200
+    return 400
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

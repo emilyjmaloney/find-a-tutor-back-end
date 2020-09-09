@@ -85,7 +85,26 @@ class UserProfile(db.Model):
     daily_timeslot = db.Column(db.String(20), nullable=True)
     online = db.Column(db.String(20), nullable=True)
     zipcode = db.Column(db.Integer, nullable=True)
-        
+    
+    def load_subjects(self):
+        subjects = self.subjects.split(",")
+        return subjects
+    
+    def set_subjects(self, new_subjects):
+        self.subjects = ",".join(new_subjects) 
+        db.session.commit()
+
+    def get_grade(self):
+        user=User.query.get(self.user_id)
+        if user.student_profile:
+            return str(user.student_profile.grade)
+        return None
+
+    def is_student(self):
+        user = User.query.get(self.user_id)
+        print(f"user profile check {user.student_profile}")
+        return True if user.student_profile else False
+
     def __init__(self, user_id, profile_image, about_me, online, subjects, weekday, daily_timeslot, zipcode):
         self.user_id = user_id
         self.profile_image = profile_image
