@@ -131,6 +131,9 @@ class UserProfile(db.Model):
             "daily_timeslot": self.daily_timeslot,
             "online": self.online,
             "zipcode": self.zipcode,
+            "name": f"{self.user.first_name} {self.user.last_name}",
+            "grade": self.user.student_profile.grade if self.user.student else None,
+            "student": self.user.student,
         }
 
 class Student(db.Model):
